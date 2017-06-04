@@ -153,25 +153,25 @@
             return;
         }
         var round = workout[roundIndex];
-        var nextRound = workout[roundIndex+1] || {};
+        var roundNext = workout[roundIndex+1] || {};
         if (!round.speed) {
             // Rest
             setRest();
             // Look ahead for speed / incline
             if (roundIndex+1 < workout.length) {
-                setSpeed(nextRound.speed || 0);
-                setSpeedNext(nextRound.speed || 0);
-                setIncline(nextRound.incline || 0);
-                setInclineNext(nextRound.incline || 0);
+                setSpeed(roundNext.speed || 0);
+                setSpeedNext(roundNext.speed || 0);
+                setIncline(roundNext.incline || 0);
+                setInclineNext(roundNext.incline || 0);
             }
         }
         else {
             // Run
             setRun();
             setSpeed(round.speed || 0);
-            setSpeedNext(nextRound.speed || 0);
+            setSpeedNext(roundNext.speed || 0);
             setIncline(round.incline || 0);
-            setInclineNext(nextRound.incline || 0);
+            setInclineNext(roundNext.incline || 0);
         }
 
         roundIndex++;
