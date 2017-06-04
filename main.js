@@ -1,12 +1,17 @@
 (function(){
     var container;
+    var timeElapsed;
+    var currentRound;
+    var timeLeft;
     var prev;
     var play;
     var next;
     var status;
     var time;
     var speed;
+    var speedNext;
     var incline;
+    var inclineNext;
     var startTime;
     var endTime;
     var roundIndex;
@@ -35,14 +40,17 @@
     function reset() {
         startTime = undefined;
         endTime = undefined;
+        setRound(0);
         setTime(0);
         setSpeed(0);
+        setSpeedNext(0);
         setIncline(0);
+        setInclineNext(0);
     }
 
     function loadTemplate() {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'workout.template.html', true);
+        xhr.open('GET', 'workout.template.html?cb=' + (+new Date), true);
         xhr.onload = function(e){
             if (xhr.status == '200') {
                 var frag = document.createElement('div');
@@ -58,19 +66,22 @@
 
     function prepareWorkout() {
         container = document.getElementById('container');
+        timeElapsed = document.getElementById('time_elapsed');
+        currentRound = document.getElementById('current_round');
+        timeLeft = document.getElementById('time_left');
         prev = document.getElementById('prev');
         play = document.getElementById('play');
         next = document.getElementById('next');
         status = document.getElementById('status');
         time = document.getElementById('time');
         speed = document.getElementById('speed');
+        speedNext = document.getElementById('speed_next');
         incline = document.getElementById('incline');
+        inclineNext = document.getElementById('incline_next');
         reset();
-        setStatus('GET READY / SET-UP');
         roundIndex = 0;
-        setSpeed((workout[0] || {}).speed || 0);
-        setIncline((workout[0] || {}).incline || 0);
-        countDown(30, nextRound);
+        nextRound();
+        togglePause();
 
         prev.addEventListener('click', function(){
             roundIndex = Math.max(roundIndex - 2, 0);
@@ -78,23 +89,26 @@
         }, false);
 
         next.addEventListener('click', function(){
+            roundIndex = Math.max(roundIndex, 0);
             nextRound();
         }, false);
 
-        play.addEventListener('click', function(){
-            isPaused = !isPaused;
-            if (isPaused) {
-                pauseStatus = '' + lastStatus;
-                setStatus('PAUSED');
-                pauseTime = (+new Date);
-            }
-            else {
-                lastStatus = '' + pauseStatus;
-                setStatus(lastStatus);
-                endTime = endTime + (+new Date - pauseTime);
-            }
-            play.innerHTML = !isPaused ? 'pause_circle_outline' : 'play_circle_outline';
-        }, false);
+        play.addEventListener('click', togglePause, false);
+    }
+
+    function togglePause() {
+        isPaused = !isPaused;
+        if (isPaused) {
+            pauseStatus = '' + lastStatus;
+            setStatus('PAUSED');
+            pauseTime = (+new Date);
+        }
+        else {
+            lastStatus = '' + pauseStatus;
+            setStatus(lastStatus);
+            endTime = endTime + (+new Date - pauseTime);
+        }
+        play.innerHTML = !isPaused ? 'pause_circle_outline' : 'play_circle_outline';
     }
 
     function countDown(seconds, callback) {
@@ -131,6 +145,7 @@
     function nextRound() {
         startTime = undefined;
         endTime = undefined;
+        setRound();
         if (roundIndex >= workout.length) {
             // Done!
             setRest();
@@ -138,25 +153,34 @@
             return;
         }
         var round = workout[roundIndex];
+        var nextRound = workout[roundIndex+1] || {};
         if (!round.speed) {
             // Rest
             setRest();
             // Look ahead for speed / incline
             if (roundIndex+1 < workout.length) {
-                setSpeed(workout[roundIndex+1].speed || 0);
-                setIncline(workout[roundIndex+1].incline || 0);
+                setSpeed(nextRound.speed || 0);
+                setSpeedNext(nextRound.speed || 0);
+                setIncline(nextRound.incline || 0);
+                setInclineNext(nextRound.incline || 0);
             }
         }
         else {
             // Run
             setRun();
             setSpeed(round.speed || 0);
+            setSpeedNext(nextRound.speed || 0);
             setIncline(round.incline || 0);
+            setInclineNext(nextRound.incline || 0);
         }
 
         roundIndex++;
 
         countDown(round.time, nextRound);
+    }
+
+    function setRound() {
+        currentRound.innerHTML = Math.min((roundIndex||0) + 1, workout.length) + '/' + workout.length;
     }
 
     function setRest() {
@@ -179,16 +203,44 @@
     }
 
     function setTime(seconds) {
+        time.innerHTML = formatTime(seconds);
+        if (roundIndex > -1) {
+            var totalTime = 0;
+            var totalTimeElapsed = 0;
+            for (var i=0; i<workout.length; i++) {
+                if (i < roundIndex - 1) {
+                    totalTimeElapsed += workout[i]['time'];
+                }
+                totalTime += workout[i]['time'];
+            }
+            totalTimeElapsed = totalTimeElapsed + workout[roundIndex - 1].time - seconds;
+            timeElapsed.innerHTML = formatTime(totalTimeElapsed);
+            totalTimeLeft = totalTime - totalTimeElapsed;
+            timeLeft.innerHTML = formatTime(totalTimeLeft);
+        }
+    }
+
+    function setTimeLeft() {
+        timeLeft.innerHTML = formatTime(seconds);
+    }
+
+    function formatTime(seconds) {
         var minutes = (seconds/60)|0;
         seconds -= (minutes * 60);
-        time.innerHTML = (minutes < 10 ? '0' : '') + minutes + ':' + ((seconds < 10) ? '0' : '') + seconds;
+        return (minutes < 10 ? '0' : '') + minutes + ':' + ((seconds < 10) ? '0' : '') + seconds;
     }
 
     function setSpeed(val) {
         speed.innerHTML = val.toFixed(1);
     }
+    function setSpeedNext(val) {
+        speedNext.innerHTML = val.toFixed(1);
+    }
     function setIncline(val) {
         incline.innerHTML = val.toFixed(1);
+    }
+    function setInclineNext(val) {
+        inclineNext.innerHTML = val.toFixed(1);
     }
 
 })();

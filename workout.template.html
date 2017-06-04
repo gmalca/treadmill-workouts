@@ -1,7 +1,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="main.css" />
+<link rel="stylesheet" type="text/css" href="main.css?r=4" />
 <div class="container" id="container">
+    <div class="summary">
+        <h5 id="time_elapsed">00:00</h5>
+        <h5 id="current_round">0/0</h5>
+        <h5 id="time_left">00:00</h5>
+    </div>
     <div class="controls">
         <i class="material-icons noselect" id="prev">skip_previous</i>
         <i class="material-icons noselect" id="play">pause_circle_outline</i>
@@ -15,10 +20,12 @@
         <div class="incline">
             <h3>INCLINE<br />(%)</h3>
             <h2 id="incline">0.0</h2>
+            <h3 id="incline_next">0.0</h3>
         </div>
         <div class="speed">
             <h3>SPEED<br />(MPH)</h3>
-            <h2 id="speed">0</h2>
+            <h2 id="speed">0.0</h2>
+            <h3 id="speed_next">0.0</h3>
         </div>
     </div>
 </div>
