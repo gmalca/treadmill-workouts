@@ -8,6 +8,8 @@
     var next;
     var status;
     var time;
+    var isSpeedMPH = true;
+    var speedHeader;
     var speed;
     var speedNext;
     var incline;
@@ -74,6 +76,7 @@
         next = document.getElementById('next');
         status = document.getElementById('status');
         time = document.getElementById('time');
+        speedHeader = document.getElementById('speed_header');
         speed = document.getElementById('speed');
         speedNext = document.getElementById('speed_next');
         incline = document.getElementById('incline');
@@ -82,6 +85,19 @@
         roundIndex = 0;
         nextRound();
         togglePause();
+
+        speedHeader.addEventListener('click', function(){
+            isSpeedMPH = !isSpeedMPH;
+            speedHeader.innerHTML = 'SPEED<br />(' + (isSpeedMPH ? 'MPH' : 'KPH') + ')';
+            if (isSpeedMPH) {
+                setSpeed(speed.innerHTML / 1.60934);
+                setSpeedNext(speedNext.innerHTML / 1.60934);
+            }
+            else {
+                setSpeed(speed.innerHTML * 1.60934);
+                setSpeedNext(speedNext.innerHTML * 1.60934);
+            }
+        }, false);
 
         prev.addEventListener('click', function(){
             roundIndex = Math.max(roundIndex - 2, 0);
