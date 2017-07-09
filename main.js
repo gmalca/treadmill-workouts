@@ -89,14 +89,8 @@
         speedHeader.addEventListener('click', function(){
             isSpeedMPH = !isSpeedMPH;
             speedHeader.innerHTML = 'SPEED<br />(' + (isSpeedMPH ? 'MPH' : 'KPH') + ')';
-            if (isSpeedMPH) {
-                setSpeed(speed.innerHTML / 1.60934);
-                setSpeedNext(speedNext.innerHTML / 1.60934);
-            }
-            else {
-                setSpeed(speed.innerHTML * 1.60934);
-                setSpeedNext(speedNext.innerHTML * 1.60934);
-            }
+            setSpeed(isSpeedMPH ? speed.innerHTML / 1.60934 : speed.innerHTML);
+            setSpeedNext(isSpeedMPH ? speedNext.innerHTML / 1.60934 : speed.innerHTML);
         }, false);
 
         prev.addEventListener('click', function(){
@@ -247,9 +241,11 @@
     }
 
     function setSpeed(val) {
+        val = (!isSpeedMPH) ? val * 1.60934 : val;
         speed.innerHTML = val.toFixed(1);
     }
     function setSpeedNext(val) {
+        val = (!isSpeedMPH) ? val * 1.60934 : val;
         speedNext.innerHTML = val.toFixed(1);
     }
     function setIncline(val) {
